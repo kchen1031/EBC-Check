@@ -72,7 +72,7 @@ Calibration: The energy test yielded a p-value of 0.994, indicating the model re
 
 Source: REBayes R package.
 
-Description: A Drosophila survival dataset with $n = 20{,}000$ observed lifetimes. Individual lifetimes $T_i > 0$ are modeled with a Weibull frailty mixture: $T_i \mid \theta_i \sim \text{Weibull}(\alpha, \theta_i)$, with frailty parameters $\theta_i \sim G$ drawn from an unknown mixing distribution estimated via a discrete NPMLE on a fixed grid.
+Description: This dataset is available from the REBayes package as data("flies"). A Drosophila survival dataset with $n = 20{,}000$ observed lifetimes. Individual lifetimes $T_i > 0$ are modeled with a Weibull frailty mixture: $T_i \mid \theta_i \sim \text{Weibull}(\alpha, \theta_i)$, with frailty parameters $\theta_i \sim G$ drawn from an unknown mixing distribution estimated via a discrete NPMLE on a fixed grid.
 
 Calibration: The energy distance and KS-test between observed lifetimes and pseudo-data from the fitted model yielded a p-value of 0.002, indicating clear miscalibration.
 
