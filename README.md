@@ -12,7 +12,7 @@ A summary of all results is provided in the table below, followed by a descripti
 
 Source: Smyth et al. (2004), Example 9.1. Distributed as part of the `marray` R package.
 
-Description: A gene expression microarray dataset. The observed data are pairs $(X_i, S_i^2)$ for $n = 8{,}448$ genes, where $X_i$ is the contrast for gene $i$ and $S_i^2$ is its standard error. Hyperparameters were estimated using the LIMMA package following Smyth's empirical Bayes model.
+Description: The goal of the Swirl experiment is to identify genes with altered expressions in the Swirl mutant compared to wild-type zebrafish. The observed data are pairs $(X_i, S_i^2)$ for $n = 8{,}448$ genes, where $X_i$ is the contrast for gene $i$ and $S_i^2$ is its standard error. Hyperparameters were estimated using the LIMMA package following Smyth's empirical Bayes model.
 
 Calibration: The subsample energy test (200 subsamples of size 2,000, 199 permutations) yielded a p-value of 0.026, indicating miscalibration. Individual component tests showed the contrast $X_i$ is the primary source of miscalibration (energy test p = 0.005, KS test p = 1.29e-06), while $S_i^2$ appeared well-calibrated (energy test p = 0.205, KS test p = 0.238).
 
@@ -22,7 +22,7 @@ Calibration: The subsample energy test (200 subsamples of size 2,000, 199 permut
 
 Source: Smyth et al. (2004), Example 9.2.
 
-Description: A gene expression microarray dataset with $n = 6{,}384$ genes. The same pre-processing pipeline and empirical Bayes procedure as the Swirl dataset were applied.
+Description: This experiement compared 8 ApoAI knockout mice with 8 control mice by obtaining the target mRNA from the liver tissue from each of these 16 mice. The goal of this experiment is to determine how ApoAI defiiency affects the action of other genes in the liver. The gene expression microarray dataset has $n = 6{,}384$ genes. The same pre-processing pipeline and empirical Bayes procedure as the Swirl dataset were applied.
 
 Calibration: The subsample energy test (200 subsamples of size 1,500, 199 permutations) yielded a p-value of 0.005, indicating clear miscalibration.
 
@@ -32,7 +32,17 @@ Calibration: The subsample energy test (200 subsamples of size 1,500, 199 permut
 
 Source: Soloff et al. (2024), Example 5.2.
 
-Description: A stellar chemistry dataset with bivariate observations $X_i = (\text{Mg/Fe}_i, \text{Si/Fe}_i) \in \mathbb{R}^2$ and known heteroskedastic measurement error covariances $\Sigma_i$. The unknown prior $G$ was estimated via the nonparametric maximum likelihood estimator (NPMLE). Two versions of this dataset appear in the results table with different sample sizes ($n = 29{,}500$ and $n = 100$), corresponding to different experimental conditions in the paper.
+Description: Chemical abundance ratios for the red clump (RC) stars given in the DR14 APOGEE red clump catalogue were examined. Following the same preprocessing steps as Ratcliffe et al. (2020), we have bivariate observations $X_i = (\text{Mg/Fe}_i, \text{Si/Fe}_i) \in \mathbb{R}^2$ and known heteroskedastic measurement error covariances $\Sigma_i$. The dataset contains n=29500 observations.
+
+Calibration: Using 200 pseudo-samples and a subsample of size 2,000, the energy test yielded p-values of 0.002 (n = 29,500) and 0.942 (n = 100). The larger dataset shows evidence of miscalibration while the smaller one does not.
+
+---
+
+### 2.5 Math Scores in US Public Schools
+
+Source: Soloff et al. (2024), Example 5.3.
+
+Description: The Education Longitudinal Study (ELS) of 2002 contains math test scores and normalized socio-economic status (SES) of 10th grade students. The survey has n=100 different large public high schools on a total of $\sum_{i=1}^{n}N_i = 1993$ children. A d=2 hierarchical regression setting where $y_{ij}$ represents the math score of student j in school i, and $X_{ij}=[1,SES_{ij}]$ contains the corresponding SES score and an intercept term. The number of stduents $N_i$ surveyed in each school greatly varies, ranging from 4 to 32 with a median of 20 students.
 
 Calibration: Using 200 pseudo-samples and a subsample of size 2,000, the energy test yielded p-values of 0.002 (n = 29,500) and 0.942 (n = 100). The larger dataset shows evidence of miscalibration while the smaller one does not.
 
@@ -40,9 +50,9 @@ Calibration: Using 200 pseudo-samples and a subsample of size 2,000, the energy 
 
 ### 2.5 Bball (Baseball)
 
-Source: Longitudinal MLB batting records.
+Source: Gu et al 2017.
 
-Description: A longitudinal batting dataset for $n = 969$ MLB players. Variance-stabilized batting outcomes $y_{it} = \arcsin\sqrt{(H_{it} + 0.25)/(N_{it} + 0.5)}$ are modeled with a location-scale hierarchical model. Sufficient statistics $(\hat{\mu}_i, S_i)$ per player are estimated and modeled with independent nonparametric priors $H_\mu \times H_\theta$, approximated via an EM algorithm.
+Description: Collected from ESPN, the data contains average monthly number of at bats and hits for all U.S Major League Baseball players from the regular seasons of 2002-2011, as well as an indicator of whether the player is a pitcher. We focus only on non-pitchers in the data analysis, leaving us with $n = 898$ MLB players and 9,199 observations. The batting averages are transformed as: $y_{it} = \arcsin\sqrt{(H_{it} + 0.25)/(N_{it} + 0.5)}$ where $H_{it}$ denotes the number of hits player $i$ achieves in period $t$, and $N_{it}$ denotes the number of at bats of the player in the same period. The $y_{it}$'s are assumed to be Gaussian with means $\mu_i = arcsin(\sqrt{p_i})$, where $p_i$ is the individual specific batting success probability and variances $\theta_i v_{it}^2 = \theta_i / (4N_{it})$.
 
 Calibration: A permutation test with 499 permutations on the energy distance between observed and pseudo sufficient statistics $(\hat{\mu}_i, \log S_i)$ yielded a p-value of 0.532, indicating the model is well-calibrated.
 
@@ -52,7 +62,7 @@ Calibration: A permutation test with 499 permutations on the energy distance bet
 
 Source: REBayes R package.
 
-Description: An occupational mortality dataset with $n = 72$ occupational groups. For each group $i$, $X_i$ denotes the number of deaths and $E_i$ is the corresponding exposure (person-years at risk). The model assumes $X_i \mid \theta_i \sim \text{Poisson}(\theta_i E_i)$ with an unknown mixing distribution $F$ estimated via NPMLE. Observations are embedded as $Z_i = (\log E_i, \log(1 + X_i))$ for the energy distance computation.
+Description: This dataset is available from the REBayes package as data("Norberg"). It consists of a portfolio of Norwegian workmen's gorup life insurance policies with $n = 72$ occupational groups. For each group $i$, $X_i$ denotes the number of deaths and $E_i$ is the corresponding exposure (number of years exposed to risk). The model assumes $X_i \mid \theta_i \sim \text{Poisson}(\theta_i E_i)$ with an unknown mixing distribution $F$ estimated via NPMLE. Observations are embedded as $Z_i = (\log E_i, \log(1 + X_i))$ for the energy distance computation.
 
 Calibration: The energy test yielded a p-value of 0.994, indicating the model reproduces the joint exposure–count structure extremely well. No evidence of miscalibration.
 
@@ -72,7 +82,7 @@ Calibration: The energy distance and KS-test between observed lifetimes and pseu
 
 Source: Chen (2025).
 
-Description: Census tract-level estimates of mean income rank for children, separately for Black and White children. Each observation $(Y_i, \sigma_i)$ consists of an estimated income rank and its standard error for census tract $i$. The empirical Bayes model assumes $Y_i \mid \theta_i, \sigma_i \sim N(\theta_i, \sigma_i^2)$, where $\theta_i = m_0(\sigma_i) + s_0(\sigma_i)\tau_i$ depends on precision $\sigma_i$ through unknown functions $m_0(\cdot)$ and $s_0(\cdot)$. Sample sizes are $n = 13{,}630$ (Black) and $n = 23{,}155$ (White).
+Description: Census tract-level estimates of mean income rank for children, separately for Black and White children. Each observation $(Y_i, \sigma_i)$ consists of an estimated income rank and its standard error for census tract $i$. The empirical Bayes model assumes $Y_i \mid \theta_i, \sigma_i \sim N(\theta_i, \sigma_i^2)$, where $\theta_i = m_0(\sigma_i) + s_0(\sigma_i)\tau_i$ depends on precision $\sigma_i$ through unknown functions $m_0(\cdot)$ and $s_0(\cdot)$. Sample sizes are $n = 13{,}630$ (Black) and $n = 23{,}155$ (White). 
 
 Calibration: The energy distance between observed and pseudo joint variables $(Y_i, \log_{10}\sigma_i)$ yielded p-values of 0.244 (Black income) and 0.081 (White income). Both indicate the model is well-calibrated.
 
