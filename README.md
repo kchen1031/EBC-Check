@@ -60,7 +60,7 @@ Description: This dataset is available from the REBayes package as data("Norberg
 
 Source: REBayes R package.
 
-Description: This dataset is available from the REBayes package as data("flies"). A Drosophila survival dataset with $n = 20{,}000$ observed lifetimes. Individual lifetimes $T_i > 0$ are modeled with a Weibull frailty mixture: $T_i \mid \theta_i \sim \text{Weibull}(\alpha, \theta_i)$, with frailty parameters $\theta_i \sim G$ drawn from an unknown mixing distribution estimated via a discrete NPMLE on a fixed grid.
+Description: This dataset is available from the REBayes package as data("flies"). It is a survival dataset with $n = 19,072$ observed lifetimes, with individual lifetimes $T_i > 0$ being modeled with a Weibull frailty mixture: $T_i \mid \theta_i \sim \text{Weibull}(\alpha, \theta_i)$. The frailty parameters $\theta_i \sim G$ drawn from an unknown mixing distribution estimated via the Kiefer-Wolfowitz NPMLE.
 
 ---
 
@@ -68,7 +68,7 @@ Description: This dataset is available from the REBayes package as data("flies")
 
 Source: Chen (2025).
 
-Description: Census tract-level estimates of mean income rank for children, separately for Black and White children. Each observation $(Y_i, \sigma_i)$ consists of an estimated income rank and its standard error for census tract $i$. The empirical Bayes model assumes $Y_i \mid \theta_i, \sigma_i \sim N(\theta_i, \sigma_i^2)$, where $\theta_i = m_0(\sigma_i) + s_0(\sigma_i)\tau_i$ depends on precision $\sigma_i$ through unknown functions $m_0(\cdot)$ and $s_0(\cdot)$. Sample sizes are $n = 13{,}630$ (Black) and $n = 23{,}155$ (White). 
+Description: We have Census tract-level estimates of mean income rank for Black children. Each observation $(Y_i, \sigma_i)$ consists of an estimated income rank and its standard error for census tract $i$. The empirical Bayes model assumes $Y_i \mid \theta_i, \sigma_i \sim N(\theta_i, \sigma_i^2)$, where $\theta_i = m_0(\sigma_i) + s_0(\sigma_i)\tau_i$ depends on precision $\sigma_i$ through unknown functions $m_0(\cdot)$ and $s_0(\cdot)$. The sample sizes is $n = 13{,}630$. 
 
 ---
 
@@ -76,7 +76,7 @@ Description: Census tract-level estimates of mean income rank for children, sepa
 
 Source: Jaffe et al. (astronomy dataset).
 
-Description: An astronomical dataset with $n = 29{,}483$ observations. Latent signals $\Theta_i \in \mathbb{R}^d$ are observed with additive Gaussian noise $X_i \mid \Theta_i \sim N(\Theta_i, \Sigma_i)$, where $\Sigma_i$ are known diagonal measurement error covariance matrices. The unknown prior $G$ is estimated via NPMLE, and a variance-constrained empirical Bayes denoiser is applied to correct for variance shrinkage.
+Description: $n=2000$ stars were sampled from an astronomical dataset with $2.7 x 10^4$ stars. Latent signals $\Theta_i \in \mathbb{R}^d$ are observed with additive Gaussian noise $X_i \mid \Theta_i \sim N(\Theta_i, \Sigma_i)$, where $\Sigma_i$ are known diagonal measurement error covariance matrices. The unknown prior $G$ is assumed to be a Gaussian location mixture model and is estimated via heteroskedastic multivariate NPMLE. Additionally, a variance-constrained empirical Bayes denoiser is applied to correct for variance shrinkage.
 
 ---
 
@@ -84,7 +84,7 @@ Description: An astronomical dataset with $n = 29{,}483$ observations. Latent si
 
 Source: Shakespeare's complete canon.
 
-Description: Word frequency counts from Shakespeare's collected works. $X_i$ denotes the total number of times distinct word $i$ appears in the canon, modeled as $X_i \mid \Theta_i \sim \text{Poisson}(\Theta_i)$. The observed data used for fitting are frequency counts $y_k = \#\{i : X_i = k\}$ for $k = 1, \ldots, 100$, giving $n = 30{,}688$ distinct words. The prior is estimated via g-modeling on a discrete log-grid using a spline-based exponential family.
+Description: Word frequency counts from Shakespeare's collected works are taken. $X_i$ denotes the total number of times distinct word $i$ appears in the canon, modeled as $X_i \mid \Theta_i \sim \text{Poisson}(\Theta_i)$. The observed data used for fitting are frequency counts $y_k = $ # $\{i : X_i = k\}$ for $k = 1, \ldots, 100$, giving $n = 30{,}688$ distinct words. The prior is estimated via g-modeling on a discrete log-grid using a spline-based exponential family.
 
 ---
 
@@ -92,7 +92,7 @@ Description: Word frequency counts from Shakespeare's collected works. $X_i$ den
 
 Source: Intestinal cancer surgery records.
 
-Description: Data from $n = 844$ cancer patients. For each patient $i$, the observed pair $(n_i, X_i)$ records the number of satellite nodes removed ($n_i$) and the number found to be malignant ($X_i$). The model assumes $X_i \mid \theta_i \sim \text{Binomial}(n_i, \theta_i)$, where $\theta_i$ is the patient-specific probability of malignancy, and $\theta_i \sim G$ is estimated empirically.
+Description: The data has $n = 844$ cancer patients. For each patient $i$, the observed pair $(n_i, X_i)$ records the number of satellite nodes removed ($n_i$) and the number found to be malignant ($X_i$). The model assumes $X_i \mid \theta_i \sim \text{Binomial}(n_i, \theta_i)$, where $\theta_i$ is the patient-specific probability of malignancy, and $\theta_i \sim G$ is estimated empirically.
 
 ---
 
@@ -100,7 +100,7 @@ Description: Data from $n = 844$ cancer patients. For each patient $i$, the obse
 
 Source: Pharmacovigilance adverse event reporting system.
 
-Description: An adverse event–drug contingency table for six statin drugs, with $n = 276$ adverse event–drug pairs. For each pair $(i, j)$, $N_{ij} \sim \text{Poisson}(E_{ij} \lambda_{ij})$, where $E_{ij}$ is a null expected count and $\lambda_{ij}$ is a latent signal parameter estimated via a flexible gamma-mixture empirical Bayes prior. Four different EB methods are compared: GPS, KM, Efron, and General-Gamma.
+Description: The data is an adverse event–drug contingency table for six statin drugs, with $n = 276$ adverse event–drug pairs. For each pair $(i, j)$, $N_{ij} \sim \text{Poisson}(E_{ij} \lambda_{ij})$, where $E_{ij}$ is a null expected count and $\lambda_{ij}$ is a latent signal parameter estimated via a flexible gamma-mixture empirical Bayes prior. Four different EB methods are compared: GPS, KM, Efron, and General-Gamma.
 
 ---
 
