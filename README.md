@@ -1,8 +1,8 @@
 # Datasets
 
-This document describes all datasets used to evaluate the Empirical Bayes Calibration (EBC) check. The calibration procedure generates pseudo-data from the fitted empirical Bayes model and compares it to the observed data via a goodness-of-fit test using the energy statistic, yielding a Monte Carlo p-value. A small p-value (< 0.05) indicates that the fitted model is miscalibrated.
+This document describes all datasets used to evaluate the Empirical Bayes Calibration (EBC) check. The calibration procedure generates pseudo-data from the fitted empirical Bayes model and compares it to the observed data via a goodness-of-fit test using the energy statistic, yielding a Monte Carlo p-value.
 
-A summary of all results is provided in the table below, followed by a description of each dataset.
+Summaries of all the datasets are provided below.
 
 
 
