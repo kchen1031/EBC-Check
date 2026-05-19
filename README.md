@@ -8,19 +8,21 @@ A summary of all results is provided in the table below, followed by a descripti
 
 ## Dataset Descriptions
 
-### 2.2 Swirl
+### 1. Smyth et al. 2004
 
-Source: Smyth et al. (2004), Example 9.1. Distributed as part of the `marray` R package.
 
-Description: The goal of the Swirl experiment is to identify genes with altered expressions in the Swirl mutant compared to wild-type zebrafish. The observed data are pairs $(X_i, S_i^2)$ for $n = 8{,}448$ genes, where $X_i$ is the contrast for gene $i$ and $S_i^2$ is its standard error. Hyperparameters were estimated using the LIMMA package following Smyth's empirical Bayes model.
+- Swirl: The goal of the Swirl experiment is to identify genes with altered expressions in the Swirl mutant compared to wild-type zebrafish. The observed data are pairs $(X_i, S_i^2)$ for $n = 8{,}448$ genes, where $X_i$ is the contrast for gene $i$ and $S_i^2$ is its standard error. The observed data for gene $i$ are the contrast estimate $X_i$ and residual variance $S_i^2$. Following Smyth (2004), the hierarchical model assumes:
 
----
+$$\hat{\beta}_g \mid \beta_g, \sigma_g^2 \sim N(\beta_g, v_g \sigma_g^2)$$
 
-### 2.3 ApoAI
+$$s_g^2 \mid \sigma_g^2 \sim \frac{\sigma_g^2}{d_g} \chi^2_{d_g}$$
 
-Source: Smyth et al. (2004), Example 9.2.
+$$\frac{1}{\sigma_g^2} \sim \frac{1}{d_0 s_0^2} \chi^2_{d_0}$$
 
-Description: This experiement compared 8 ApoAI knockout mice with 8 control mice by obtaining the target mRNA from the liver tissue from each of these 16 mice. The goal of this experiment is to determine how ApoAI defiiency affects the action of other genes in the liver. The gene expression microarray dataset has $n = 6{,}384$ genes. The same pre-processing pipeline and empirical Bayes procedure as the Swirl dataset were applied.
+Hyperparameters were estimated using the LIMMA package following Smyth's empirical Bayes model.
+
+
+- ApoAI: This experiement compared 8 ApoAI knockout mice with 8 control mice by obtaining the target mRNA from the liver tissue from each of these 16 mice. The goal of this experiment is to determine how ApoAI defiiency affects the action of other genes in the liver. The gene expression microarray dataset has $n = 6{,}384$ genes. The same pre-processing pipeline and empirical Bayes procedure as the Swirl dataset were applied.
 
 ---
 
@@ -28,7 +30,7 @@ Description: This experiement compared 8 ApoAI knockout mice with 8 control mice
 
 Source: Soloff et al. (2024), Example 5.2.
 
-Description: Chemical abundance ratios for the red clump (RC) stars given in the DR14 APOGEE red clump catalogue were examined. Following the same preprocessing steps as Ratcliffe et al. (2020), we have bivariate observations $X_i = (\text{Mg/Fe}_i, \text{Si/Fe}_i) \in \mathbb{R}^2$ and known heteroskedastic measurement error covariances $\Sigma_i$. The dataset contains n=29500 observations.
+Description: Chemical abundance ratios for the red clump (RC) stars given in the DR14 APOGEE red clump catalogue were examined. Following the same preprocessing steps as Ratcliffe et al. (2020), we have bivariate observations $X_i = (\text{Mg/Fe}_i, \text{Si/Fe}_i) \in \mathbb{R}^2$ that follow a heteroskedastic normal means model $X_i | \theta_i \sim N(\theta_i, \Sigma_i)$ with known heteroskedastic measurement error covariances $\Sigma_i$. The dataset contains $n=29500$ observations.
 
 ---
 
@@ -161,7 +163,7 @@ Description: This baseball dataset contains the number of at-bats $A_j$ and hits
 
 Source: Breast cancer gene expression study.
 
-Description: We have gene expression data with a binary outcome (response/no response) for $p = 22{,}283$ genes across $n$ subjects. For each gene $j$, the pair of class-specific sample means $Z_j = (\bar{X}_{j0}, \bar{X}_{j1})$ is modeled jointly as $Z_j \mid \Theta_j \sim N_2(\Theta_j, \text{diag}(1/n_0, 1/n_1))$, with a bivariate prior $G$ estimated via the Kiefer-Wolfowitz NPMLE.
+Description: We have gene expression data with a binary outcome (response/no response) for $p = 22{,}283$ genes across $n$ subjects. For each gene $j$, the pair of class-specific sample means $$Z_j = (\bar{X}_{j0}, \bar{X}_{j1})$$ is modeled jointly as $Z_j \mid \Theta_j \sim N_2(\Theta_j, \text{diag}(1/n_0, 1/n_1))$, with a bivariate prior $G$ estimated via the Kiefer-Wolfowitz NPMLE.
 
 ---
 
@@ -177,7 +179,7 @@ Description: We have school-level estimated treatment effects $\hat{\theta}_{ij}
 
 Source: Motorcycle crash simulation experiment.
 
-Description: A simulated motorcycle crash acceleration signal with $T = 128$ time points after preprocessing (median aggregation, ordering, and padding to a power of 2). The heteroskedastic Gaussian model $y_t \mid \mu_t, \sigma_t^2 \sim N(\mu_t, \sigma_t^2)$ is fitted using SMASH, an empirical Bayes wavelet shrinkage method that estimates both the mean signal and the variance function iteratively.
+Description: We have a simulated motorcycle crash acceleration signal with $T = 128$ time points after preprocessing (median aggregation, ordering, and padding to a power of 2). The heteroskedastic Gaussian model $y_t \mid \mu_t, \sigma_t^2 \sim N(\mu_t, \sigma_t^2)$ is fitted using SMASH, an empirical Bayes wavelet shrinkage method that estimates both the mean signal and the variance function iteratively.
 
 ---
 
@@ -185,7 +187,7 @@ Description: A simulated motorcycle crash acceleration signal with $T = 128$ tim
 
 Source: MLB player performance records.
 
-Description: Weighted on-base average (wOBA) observations $(x_i, s_i)$ for $n = 688$ MLB players, where $x_i$ is the observed wOBA and $s_i$ is its estimated standard error (treated as known). The normal means model $x_i \mid \theta_i \sim N(\theta_i, s_i^2)$ is fitted with three different empirical Bayes prior families (e.g., normal, unimodal, nonparametric mixture) via the `ebnm` package.
+Description: We have weighted on-base average (wOBA) observations $(x_i, s_i)$ for $n = 688$ MLB players during the 2022 MLB regular season, where $x_i$ is the observed wOBA and $s_i$ is its estimated standard error (treated as known). The normal means model $x_i \mid \theta_i \sim N(\theta_i, s_i^2)$ is fitted with three different empirical Bayes prior families (e.g., normal, unimodal, nonparametric mixture) via the `ebnm` package.
 
 ---
 
@@ -193,7 +195,7 @@ Description: Weighted on-base average (wOBA) observations $(x_i, s_i)$ for $n = 
 
 Source: Arizona population study (Poisson); Framingham Heart Study (FHS, measurement error model).
 
-Description: Two datasets used to evaluate the `neuralG` g-modeling empirical Bayes approach, each with $n = 1{,}798$ observations.
+Description: Two datasets used to evaluate the `neuralG` g-modeling empirical Bayes approach:
 
-- Arizona: Count data modeled as $Y_i \mid \lambda_i \sim \text{Poisson}(\lambda_i)$ with an unknown prior $G$ estimated via neural-g on a discrete grid.
-- FHS: Continuous measurements with replication noise, modeled as $Y_i \mid \theta_i \sim N(\theta_i, \sigma^2_{\text{obs}})$ (two replicates averaged), with $G$ estimated similarly.
+- Arizona: We have Arizona Medicare data from the year 1995 of the lengths of hospital stays, modeled as $Y_i \mid \lambda_i \sim \text{Poisson}(\lambda_i)$ and a sample size of $n=1798$. The unknown prior $G$ estimated via neural-g on a discrete grid.
+- FHS: We have continuous measurements of systolic blood pressure with replication noise, modeled as $Y_i \mid \theta_i \sim N(\theta_i, \sigma^2_{\text{obs}})$ (two replicates averaged) and a sample size of $n=1615$, with $G$ estimated similarly.
