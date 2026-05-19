@@ -108,7 +108,7 @@ Description: The data is an adverse event–drug contingency table for six stati
 
 Source: 2017–18 NHL season goal records.
 
-Description: Goal totals $Y_i$ for $n = 818$ NHL players in the 2017–18 season, modeled as $Y_i \mid \theta_i \sim \text{Poisson}(\theta_i)$ with an unknown prior $G$ on player scoring rates. Three nonparametric minimum-distance estimators of $G$ are compared: NPMLE (KL divergence), Hellinger distance, and $\chi^2$ divergence. The fitted EB rules are used to predict 2018–19 goal totals.
+Description: The goal totals $Y_i$ for $n = 818$ NHL players in the 2017–18 season are modeled as $Y_i \mid \theta_i \sim \text{Poisson}(\theta_i)$ with an unknown prior $G$ on player scoring rates. Three nonparametric minimum-distance estimators of $G$ are compared: NPMLE (KL divergence), Hellinger distance, and $\chi^2$ divergence. The fitted EB rules are used to predict 2018–19 goal totals.
 
 ---
 
@@ -116,7 +116,7 @@ Description: Goal totals $Y_i$ for $n = 818$ NHL players in the 2017–18 season
 
 Source: Various ecological surveys.
 
-Description: Five ecological count datasets where $Y_i$ denotes the number of times species $i$ is detected across $s$ sampling efforts. Each is modeled as $Y_i \mid \lambda_i \sim \text{Poisson}(\lambda_i)$ with the prior $G$ estimated via a nonparametric g-modeling approach. The calibration test compares observed positive-count samples to pseudo-samples from the fitted model.
+Description: We have five ecological count datasets where $Y_i$ denotes the number of times species $i$ is detected across $s$ sampling efforts. Each is modeled as $Y_i \mid \lambda_i \sim \text{Poisson}(\lambda_i)$ with the prior $G$ estimated via a nonparametric g-modeling approach. The calibration test compares observed positive-count samples to pseudo-samples from the fitted model.
 
 | Dataset | n | P-value |
 |---------|---|---------|
@@ -132,7 +132,7 @@ Description: Five ecological count datasets where $Y_i$ denotes the number of ti
 
 Source: Golub et al. and Lung cancer gene expression studies.
 
-Description: Two high-dimensional gene expression datasets with binary class labels. For each gene $j$ and class $k \in \{0, 1\}$, the class-specific sample mean $\bar{X}_j^k \sim N(\mu_j^k, 1/n_k)$ is modeled with an unknown prior $G_k$ estimated separately per class via the Kiefer–Wolfowitz NPMLE.
+Description: We have two high-dimensional gene expression datasets with binary class labels. For each gene $j$ and class $k \in \{0, 1\}$ (assumed to be independent) , the class-specific sample mean $\bar{X}_j^k \sim N(\mu_j^k, 1/n_k)$ is modeled with an unknown prior $G_k$ estimated separately per class via the Kiefer–Wolfowitz NPMLE.
 
 | Dataset | n (genes) | P-value |
 |---------|-----------|---------|
@@ -145,15 +145,15 @@ Description: Two high-dimensional gene expression datasets with binary class lab
 
 Source: Modal choice transportation survey.
 
-Description: A binary discrete-choice dataset with $n = 842$ observations. The binary outcome $y_i \in \{0, 1\}$ encodes a modal choice, modeled via a random coefficients probit: $y_i = \mathbf{1}\{x_i^\top \beta_i > 0\}$ with latent random coefficients $\eta_i \sim F$. The unknown mixing distribution $F$ is estimated by NPMLE.
+Description: We have a binary discrete-choice dataset with $n = 842$ randomly sampled observations of individuals' transportation choices for their daily commute to work around the Washington DC area. The binary outcome $y_i \in \{0, 1\}$ encodes a modal choice, taking the value of 1 if a car is used for the commute and 0 if public transit is used. It is modeled via a random coefficients probit: $y_i = \mathbf{1}\{x_i^\top \beta_i > 0\}$ with latent random coefficients $\eta_i \sim F$. The unknown mixing distribution $F$ is estimated by NPMLE.
 
 ---
 
-### 14. NPMLE Baseball
+### 14. NPMLE Baseball NPMLE mixture
 
-Source: MLB first-half batting records.
+Source: MLB first-half batting records. 
 
-Description: First-half at-bats $A_j$ and hits $H_j$ for $n = 565$ MLB players. The hierarchical model assumes $A_j \mid (\lambda_j, \pi_j) \sim \text{Poisson}(\lambda_j)$ and $H_j \mid (A_j, \lambda_j, \pi_j) \sim \text{Binomial}(A_j, \pi_j)$, with the joint latent parameter $(\lambda_j, \pi_j) \sim G_0$ estimated via an approximate bivariate NPMLE on a fixed grid.
+Description: This baseball dataset contains the number of at-bats $A_j$ and hits $H_j$ for $n = 565$ MLB players during the 2005 season. The hierarchical model assumes $A_j \mid (\lambda_j, \pi_j) \sim \text{Poisson}(\lambda_j)$ and $H_j \mid (A_j, \lambda_j, \pi_j) \sim \text{Binomial}(A_j, \pi_j)$, with the joint latent parameter $(\lambda_j, \pi_j) \sim G_0$ estimated via the Kiefer-Wolfowitz NPMLE.
 
 ---
 
@@ -161,7 +161,7 @@ Description: First-half at-bats $A_j$ and hits $H_j$ for $n = 565$ MLB players. 
 
 Source: Breast cancer gene expression study.
 
-Description: Gene expression data with a binary outcome (response/no response) for $p = 22{,}283$ genes across $n$ subjects. For each gene $j$, the pair of class-specific sample means $Z_j = (\bar{X}_{j0}, \bar{X}_{j1})$ is modeled jointly as $Z_j \mid \Theta_j \sim N_2(\Theta_j, \text{diag}(1/n_0, 1/n_1))$, with a bivariate prior $G$ estimated via NPMLE on a finite grid.
+Description: We have gene expression data with a binary outcome (response/no response) for $p = 22{,}283$ genes across $n$ subjects. For each gene $j$, the pair of class-specific sample means $Z_j = (\bar{X}_{j0}, \bar{X}_{j1})$ is modeled jointly as $Z_j \mid \Theta_j \sim N_2(\Theta_j, \text{diag}(1/n_0, 1/n_1))$, with a bivariate prior $G$ estimated via the Kiefer-Wolfowitz NPMLE.
 
 ---
 
@@ -169,7 +169,7 @@ Description: Gene expression data with a binary outcome (response/no response) f
 
 Source: Tennessee Student/Teacher Achievement Ratio (STAR) class-size experiment.
 
-Description: School-level estimated treatment effects $\hat{\theta}_{ij}$ across $J = 4$ strata (class-size conditions), with estimated variances $S_{ij}^2$, for $n = 5{,}771$ schools. The model assumes $\hat{\theta}_i \mid \theta_i \sim N(\theta_i, \Sigma_i)$ with the prior $G$ estimated via either a parametric Gaussian model or NPMLE.
+Description: We have school-level estimated treatment effects $\hat{\theta}_{ij}$ across $J = 4$ strata (class-size conditions), with estimated variances $S_{ij}^2$, for $n = 5{,}771$ schools. The model assumes $\hat{\theta}_i \mid \theta_i \sim N(\theta_i, \Sigma_i)$ with the prior $G$ estimated via either a parametric Gaussian model or NPMLE.
 
 ---
 
