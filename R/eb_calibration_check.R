@@ -2,86 +2,36 @@
 #'
 #' Performs a simulation-based goodness-of-fit assessment for an empirical
 #' Bayes model using the multivariate energy distance as the discrepancy
-#' statistic. See: Efron (2010), "Large-Scale Inference", and the procedure
-#' described in the accompanying methodology document.
+#' statistic.
 #'
-#' @param X_obs A numeric matrix or data frame of observed data (n x p),
-#'   where rows are observations and columns are variables. A numeric vector
-#'   is coerced to a single-column matrix.
-#' @param prior_sampler A function with signature \code{function(n)} that
-#'   draws \code{n} latent parameters from the estimated prior \eqn{\hat{G}}.
-#'   Returns a vector (univariate) or matrix with \code{n} rows (multivariate).
-#' @param likelihood_sampler A function with signature
-#'   \code{function(thetas)} that draws one observation per latent parameter.
-#'   \code{thetas} is the output of \code{prior_sampler}. Returns a vector or
-#'   matrix with the same number of rows as \code{thetas}.
-#' @param B Integer. Number of Monte Carlo replicates. Default: \code{999}.
-#' @param seed Optional integer random seed for reproducibility. Default: \code{NULL}.
-#' @param verbose Logical. If \code{TRUE}, prints a progress bar. Default: \code{TRUE}.
+#' @param X_obs A numeric matrix or data frame of observed data (n x p).
+#'   A numeric vector is coerced to a single-column matrix.
+#' @param prior_sampler function(n): draws n latent parameters from G_hat.
+#' @param likelihood_sampler function(thetas): draws one observation per
+#'   latent parameter, on the natural scale.
+#' @param feature_transform function(x): maps natural-scale observations to the
+#'   scale on which the energy statistic is computed (variance-stabilizing
+#'   transform, or identity). Applied identically to observed and simulated
+#'   data. Default: identity.
+#' @param B Integer. Number of Monte Carlo replicates. Default: 500.
+#' @param seed Optional integer random seed. Default: 1.
+#' @param standardize Logical. If TRUE, center/scale each feature column using
+#'   statistics computed from the (transformed) observed data, and reuse those
+#'   same statistics for the simulated data. Default: TRUE.
+#' @param verbose Logical. If TRUE, prints a progress bar. Default: TRUE.
 #'
-#' @return A list of class \code{"eb_calibration"} containing:
-#'   \describe{
-#'     \item{\code{p_value}}{Monte Carlo p-value. Small values indicate
-#'       poor fit.}
-#'     \item{\code{T_obs}}{Median observed discrepancy \eqn{\tilde{T}^{obs}}.}
-#'     \item{\code{T_obs_all}}{Vector of length \code{B} of per-replicate
-#'       observed discrepancies \eqn{T^{obs}_b}.}
-#'     \item{\code{T_ref}}{Vector of length \code{B} of reference
-#'       discrepancies \eqn{T^{ref}_b}.}
-#'     \item{\code{B}}{Number of replicates used.}
-#'   }
-#'
-#' @details
-#' The procedure works as follows:
-#'
-#' For each replicate \eqn{b = 1, \ldots, B}:
-#' \enumerate{
-#'   \item Draw latent parameters \eqn{\theta_i^{(b)} \sim \hat{G}}, for
-#'     \eqn{i = 1, \ldots, n}.
-#'   \item Generate two independent synthetic datasets
-#'     \eqn{X^{(b)}_{sim,1}} and \eqn{X^{(b)}_{sim,2}} from the fitted model.
-#'   \item Compute \eqn{T^{ref}_b = d(X^{(b)}_{sim,1}, X^{(b)}_{sim,2})}.
-#'   \item Compute \eqn{T^{obs}_b = d(X^{obs}, X^{(b)}_{sim,1})}.
-#' }
-#'
-#' The test statistic is \eqn{\tilde{T}^{obs} = \text{median}_b(T^{obs}_b)}
-#' and the Monte Carlo p-value is:
-#' \deqn{p = \frac{1 + \sum_{b=1}^{B} \mathbf{1}\{T^{ref}_b \geq \tilde{T}^{obs}\}}{B + 1}}
-#'
-#' The energy distance between two samples is computed via
-#' \code{eqdist.e()} from the \pkg{energy} package.
-#'
-#' @examples
-#' set.seed(42)
-#' n <- 200
-#'
-#' # Simulate observed data from a Normal-Normal model
-#' # True prior: theta_i ~ N(0, 1); likelihood: X_i | theta_i ~ N(theta_i, 1)
-#' thetas_true <- rnorm(n, mean = 0, sd = 1)
-#' X_obs       <- matrix(rnorm(n, mean = thetas_true, sd = 1), ncol = 1)
-#'
-#' # Suppose the empirical Bayes estimate of G is N(0, 1) (correctly specified)
-#' prior_sampler      <- function(n) rnorm(n, mean = 0, sd = 1)
-#' likelihood_sampler <- function(thetas) matrix(rnorm(length(thetas),
-#'                                                     mean = thetas, sd = 1),
-#'                                               ncol = 1)
-#'
-#' result <- eb_calibration_check(X_obs, prior_sampler, likelihood_sampler,
-#'                                B = 499, seed = 1)
-#' print(result)
-#' plot(result)
-#' @importFrom energy eqdist.e
-#' @importFrom stats median
-#' @importFrom utils txtProgressBar setTxtProgressBar
+#' @return A list of class "eb_calibration".
 #' @export
 eb_calibration_check <- function(X_obs,
                                  prior_sampler,
                                  likelihood_sampler,
-                                 B       = 999L,
-                                 seed    = NULL,
+                                 feature_transform = function(x) x,
+                                 B = 500,
+                                 seed = 1,
+                                 standardize = TRUE,
                                  verbose = TRUE) {
 
-  # ---- Input validation -------------------------------------------------------
+  # ---- Input validation -----------------------------------------------------
   if (!is.null(seed)) set.seed(seed)
 
   if (is.vector(X_obs) && !is.list(X_obs)) {
@@ -94,45 +44,71 @@ eb_calibration_check <- function(X_obs,
 
   if (!is.function(prior_sampler))      stop("`prior_sampler` must be a function.")
   if (!is.function(likelihood_sampler)) stop("`likelihood_sampler` must be a function.")
+  if (!is.function(feature_transform))  stop("`feature_transform` must be a function.")
   if (!is.numeric(B) || length(B) != 1L || B < 1L) {
     stop("`B` must be a positive integer.")
   }
   B <- as.integer(B)
 
-  # ---- Energy distance via the energy package ---------------------------------
-  # eqdist.e() computes the E-statistic = d(X,Y) * nx*ny/(nx+ny) for a pooled
-  # matrix and a size vector. We recover the plain energy distance by dividing
-  # by the factor nx*ny/(nx+ny).
   if (!requireNamespace("energy", quietly = TRUE)) {
     stop("Package 'energy' is required. Install it with: install.packages('energy')")
   }
 
+  # ---- Energy distance via the energy package -------------------------------
   energy_distance <- function(X, Y) {
     X  <- as.matrix(X)
     Y  <- as.matrix(Y)
     nx <- nrow(X)
     ny <- nrow(Y)
     XY <- rbind(X, Y)
-    # eqdist.e returns the E-statistic = d(X,Y) * nx*ny/(nx+ny)
-    e_stat <- eqdist.e(XY, sizes = c(nx, ny))
+    e_stat <- energy::eqdist.e(XY, sizes = c(nx, ny))
     e_stat * (nx + ny) / (nx * ny)
   }
 
-  # ---- Helper: generate one synthetic dataset from the fitted model -----------
+  # ---- Feature transform + standardization ----------------------------------
+  # Applies feature_transform, then (optionally) centers/scales using
+  # reference statistics. When ref_stats is NULL the stats are computed from
+  # the data passed in (used once, on the observed data); thereafter the
+  # observed-data stats are reused so observed and simulated are on one scale.
+  apply_features <- function(x, ref_stats = NULL) {
+    Z <- as.matrix(feature_transform(x))
+    if (standardize) {
+      if (is.null(ref_stats)) {
+        mu <- colMeans(Z)
+        s  <- apply(Z, 2, stats::sd)
+      } else {
+        mu <- ref_stats$mu
+        s  <- ref_stats$s
+      }
+      s[s == 0] <- 1
+      Z <- sweep(sweep(Z, 2L, mu, "-"), 2L, s, "/")
+      attr(Z, "mu") <- mu
+      attr(Z, "s")  <- s
+    }
+    Z
+  }
+
+  # Observed features + reference standardization stats (from observed only)
+  Z_obs     <- apply_features(X_obs)
+  ref_stats <- if (standardize) {
+    list(mu = attr(Z_obs, "mu"), s = attr(Z_obs, "s"))
+  } else NULL
+
+  # ---- Helper: one synthetic dataset, on the feature scale ------------------
   generate_synthetic <- function() {
     thetas <- prior_sampler(n)
     sim    <- likelihood_sampler(thetas)
     if (is.vector(sim) && !is.list(sim)) sim <- matrix(sim, ncol = 1L)
-    as.matrix(sim)
+    apply_features(sim, ref_stats)
   }
 
-  # ---- Main Monte Carlo loop --------------------------------------------------
+  # ---- Main Monte Carlo loop ------------------------------------------------
   T_obs_b <- numeric(B)
   T_ref_b <- numeric(B)
 
   if (verbose) {
     cat("Running empirical Bayes calibration check (B =", B, "replicates)...\n")
-    pb <- txtProgressBar(min = 0L, max = B, style = 3L)
+    pb <- utils::txtProgressBar(min = 0L, max = B, style = 3L)
   }
 
   for (b in seq_len(B)) {
@@ -140,9 +116,9 @@ eb_calibration_check <- function(X_obs,
     sim2 <- generate_synthetic()
 
     T_ref_b[b] <- energy_distance(sim1, sim2)
-    T_obs_b[b] <- energy_distance(X_obs, sim1)
+    T_obs_b[b] <- energy_distance(Z_obs, sim1)
 
-    if (verbose) setTxtProgressBar(pb, b)
+    if (verbose) utils::setTxtProgressBar(pb, b)
   }
 
   if (verbose) {
@@ -150,12 +126,11 @@ eb_calibration_check <- function(X_obs,
     cat("\n")
   }
 
-  # ---- Test statistic and p-value ---------------------------------------------
-  T_obs_median <- median(T_obs_b)
+  # ---- Test statistic and p-value -------------------------------------------
+  T_obs_median <- stats::median(T_obs_b)
   p_value      <- (1 + sum(T_ref_b >= T_obs_median)) / (B + 1)
 
-  # ---- Return -----------------------------------------------------------------
-  result <- structure(
+  structure(
     list(
       p_value   = p_value,
       T_obs     = T_obs_median,
@@ -165,8 +140,6 @@ eb_calibration_check <- function(X_obs,
     ),
     class = "eb_calibration"
   )
-
-  result
 }
 
 
@@ -190,8 +163,6 @@ print.eb_calibration <- function(x, ...) {
 
 
 #' @export
-#' @importFrom graphics par hist abline legend mtext
-#' @importFrom grDevices adjustcolor
 plot.eb_calibration <- function(x, ...) {
   old_par <- par(no.readonly = TRUE)
   on.exit(par(old_par))

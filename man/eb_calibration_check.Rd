@@ -8,87 +8,42 @@ eb_calibration_check(
   X_obs,
   prior_sampler,
   likelihood_sampler,
-  B = 999L,
-  seed = NULL,
+  feature_transform = function(x) x,
+  B = 500,
+  seed = 1,
+  standardize = TRUE,
   verbose = TRUE
 )
 }
 \arguments{
-\item{X_obs}{A numeric matrix or data frame of observed data (n x p),
-where rows are observations and columns are variables. A numeric vector
-is coerced to a single-column matrix.}
+\item{X_obs}{A numeric matrix or data frame of observed data (n x p).
+A numeric vector is coerced to a single-column matrix.}
 
-\item{prior_sampler}{A function with signature \code{function(n)} that
-draws \code{n} latent parameters from the estimated prior \eqn{\hat{G}}.
-Returns a vector (univariate) or matrix with \code{n} rows (multivariate).}
+\item{prior_sampler}{function(n): draws n latent parameters from G_hat.}
 
-\item{likelihood_sampler}{A function with signature
-\code{function(thetas)} that draws one observation per latent parameter.
-\code{thetas} is the output of \code{prior_sampler}. Returns a vector or
-matrix with the same number of rows as \code{thetas}.}
+\item{likelihood_sampler}{function(thetas): draws one observation per
+latent parameter, on the natural scale.}
 
-\item{B}{Integer. Number of Monte Carlo replicates. Default: \code{999}.}
+\item{feature_transform}{function(x): maps natural-scale observations to the
+scale on which the energy statistic is computed (variance-stabilizing
+transform, or identity). Applied identically to observed and simulated
+data. Default: identity.}
 
-\item{seed}{Optional integer random seed for reproducibility. Default: \code{NULL}.}
+\item{B}{Integer. Number of Monte Carlo replicates. Default: 500.}
 
-\item{verbose}{Logical. If \code{TRUE}, prints a progress bar. Default: \code{TRUE}.}
+\item{seed}{Optional integer random seed. Default: 1.}
+
+\item{standardize}{Logical. If TRUE, center/scale each feature column using
+statistics computed from the (transformed) observed data, and reuse those
+same statistics for the simulated data. Default: TRUE.}
+
+\item{verbose}{Logical. If TRUE, prints a progress bar. Default: TRUE.}
 }
 \value{
-A list of class \code{"eb_calibration"} containing:
-\describe{
-\item{\code{p_value}}{Monte Carlo p-value. Small values indicate
-poor fit.}
-\item{\code{T_obs}}{Median observed discrepancy \eqn{\tilde{T}^{obs}}.}
-\item{\code{T_obs_all}}{Vector of length \code{B} of per-replicate
-observed discrepancies \eqn{T^{obs}_b}.}
-\item{\code{T_ref}}{Vector of length \code{B} of reference
-discrepancies \eqn{T^{ref}_b}.}
-\item{\code{B}}{Number of replicates used.}
-}
+A list of class "eb_calibration".
 }
 \description{
 Performs a simulation-based goodness-of-fit assessment for an empirical
 Bayes model using the multivariate energy distance as the discrepancy
-statistic. See: Efron (2010), "Large-Scale Inference", and the procedure
-described in the accompanying methodology document.
-}
-\details{
-The procedure works as follows:
-
-For each replicate \eqn{b = 1, \ldots, B}:
-\enumerate{
-\item Draw latent parameters \eqn{\theta_i^{(b)} \sim \hat{G}}, for
-\eqn{i = 1, \ldots, n}.
-\item Generate two independent synthetic datasets
-\eqn{X^{(b)}_{sim,1}} and \eqn{X^{(b)}_{sim,2}} from the fitted model.
-\item Compute \eqn{T^{ref}_b = d(X^{(b)}_{sim,1}, X^{(b)}_{sim,2})}.
-\item Compute \eqn{T^{obs}_b = d(X^{obs}, X^{(b)}_{sim,1})}.
-}
-
-The test statistic is \eqn{\tilde{T}^{obs} = \text{median}_b(T^{obs}_b)}
-and the Monte Carlo p-value is:
-\deqn{p = \frac{1 + \sum_{b=1}^{B} \mathbf{1}\{T^{ref}_b \geq \tilde{T}^{obs}\}}{B + 1}}
-
-The energy distance between two samples is computed via
-\code{eqdist.e()} from the \pkg{energy} package.
-}
-\examples{
-set.seed(42)
-n <- 200
-
-# Simulate observed data from a Normal-Normal model
-# True prior: theta_i ~ N(0, 1); likelihood: X_i | theta_i ~ N(theta_i, 1)
-thetas_true <- rnorm(n, mean = 0, sd = 1)
-X_obs       <- matrix(rnorm(n, mean = thetas_true, sd = 1), ncol = 1)
-
-# Suppose the empirical Bayes estimate of G is N(0, 1) (correctly specified)
-prior_sampler      <- function(n) rnorm(n, mean = 0, sd = 1)
-likelihood_sampler <- function(thetas) matrix(rnorm(length(thetas),
-                                                    mean = thetas, sd = 1),
-                                              ncol = 1)
-
-result <- eb_calibration_check(X_obs, prior_sampler, likelihood_sampler,
-                               B = 499, seed = 1)
-print(result)
-plot(result)
+statistic.
 }
