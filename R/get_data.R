@@ -721,7 +721,7 @@ get_data <- function(paper, dataset) {
     if (!requireNamespace("neuralG", quietly = TRUE))
       stop("Install neuralG: remotes::install_github('shijiew97/neuralG').")
 
-    py_require(c("torch", "torchvision"))
+    reticulate::py_require(c("torch", "torchvision"))
 
     data("azdrg112", package = "COUNT", envir = environment())
     if (!"los" %in% names(azdrg112))
@@ -783,7 +783,7 @@ get_data <- function(paper, dataset) {
     if (!requireNamespace("reticulate", quietly = TRUE))
       stop("Install reticulate package').")
 
-    py_require(c("torch", "torchvision"))
+    reticulate::py_require(c("torch", "torchvision"))
 
     data("framingham", package = "ebcalibration", envir = environment())
 
