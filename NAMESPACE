@@ -3,3 +3,4 @@
 S3method(plot,eb_calibration)
 S3method(print,eb_calibration)
 export(eb_calibration_check)
+export(get_data)
