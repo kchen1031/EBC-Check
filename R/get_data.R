@@ -742,7 +742,8 @@ get_data <- function(paper, dataset) {
                              lrdecay = 1,
                              lr_power = 0.2,
                              c = 0.6,
-                             verb = 0)
+                             verb = 0,
+                             gpu_ind = -1)
     w   <- fit$prob / sum(fit$prob)
 
     if (abs(sum(fit$support * w) - mean(y_obs)) > 0.5 * mean(y_obs))
@@ -806,7 +807,7 @@ get_data <- function(paper, dataset) {
                              dist = "Gaussian", param = sd_z,
                              n_grid = 100, num_it = 8000,
                              lr = 0.0003, lrdecay = 1, lr_power = 0.2,
-                             c = 0.6, verb = 1)        # verb=1: watch the loss move
+                             c = 0.6, verb = 1, gpu_id = -1)        # verb=1: watch the loss move
 
     w <- fit$prob; w[!is.finite(w)] <- 0
     if (sum(w) <= 0)
