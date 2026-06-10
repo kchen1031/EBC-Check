@@ -925,7 +925,7 @@ get_data <- function(paper, dataset) {
       paper, dataset
     ),
     "Supported combinations:\n",
-    "  get_data('Willwerscheid', 'wOBA')\n",
+    "  get_data('Willwerscheid', 'wOBA_normal' | 'wOBA_unimodal' | 'wOBA_npmle')\n",
     "  get_data('Koenker', 'Norberg')\n",
     "  get_data('Koenker', 'Flies')\n",
     "  get_data('Narasimhan', 'Surgery')\n",
@@ -933,6 +933,12 @@ get_data <- function(paper, dataset) {
     "  get_data('Gu', 'baseball')\n",
     "  get_data('Baek', 'brainvessel' | 'hardcandy' | 'deathnotice' |\n",
     "                   'traffic' | 'microbial' | 'shakespeare')\n",
+    "  get_data('Jana', 'hockey_npmle' | 'hockey_hellinger' | 'hockey_chisquare')\n",
+    "  get_data('You', 'STAR_gaussian' | 'STAR_npmle')\n",
+    "  get_data('Wang', 'arizona')\n",
+    "  get_data('Wang', 'framingham')\n",
+    "  get_data('DickerZhao', 'golub_all')\n",
+    "  get_data('DickerZhao', 'golub_aml')\n",
     call. = FALSE
   )
 }
