@@ -6,137 +6,89 @@
 \usage{
 eb_calibration_check(
   X_obs,
-  fit_prior,
+  prior_sampler,
   likelihood_sampler,
-  feature_transform = function(x) x,
-  B = 199,
-  K = 5,
-  alpha = 0.05,
-  standardize = TRUE,
-  cores = 1L,
-  seed = 1,
+  B = 999L,
+  seed = NULL,
   verbose = TRUE
 )
 }
 \arguments{
-\item{X_obs}{Observed data: a numeric vector, or a matrix / data frame
-with one row per unit.}
+\item{X_obs}{A numeric matrix or data frame of observed data (n x p),
+where rows are observations and columns are variables. A numeric vector
+is coerced to a single-column matrix.}
 
-\item{fit_prior}{\verb{function(x)}: the g-modeling routine. Given a dataset on
-the natural scale (a numeric vector when there is one column, otherwise
-a matrix), it fits the model and returns either
-\itemize{
-\item a prior sampler \verb{function(n)} drawing \eqn{n} values of
-\eqn{\theta} from the fitted \eqn{\hat G}, or
-\item a list with element \code{prior_sampler} and, optionally,
-\code{likelihood_sampler}, for models whose likelihood also carries
-estimated parameters (e.g. a Weibull shape) that must be refit too.
-}
-It is called once on \code{X_obs} and once on each of the \code{B} synthetic
-datasets. It should capture the nuisance values \eqn{\nu_i} (see below)
-but must not capture \code{X_obs} or anything fitted to it: everything it
-estimates must come from its argument \code{x}.}
+\item{prior_sampler}{A function with signature \code{function(n)} that
+draws \code{n} latent parameters from the estimated prior \eqn{\hat{G}}.
+Returns a vector (univariate) or matrix with \code{n} rows (multivariate).}
 
-\item{likelihood_sampler}{\verb{function(theta)}: draws one observation per
-latent parameter, on the natural scale, under the working likelihood.
-Used whenever the fit does not supply its own.}
+\item{likelihood_sampler}{A function with signature
+\code{function(thetas)} that draws one observation per latent parameter.
+\code{thetas} is the output of \code{prior_sampler}. Returns a vector or
+matrix with the same number of rows as \code{thetas}.}
 
-\item{feature_transform}{\verb{function(x)}: maps natural-scale data to the
-scale on which the energy distance is computed (variance-stabilising
-transform, augmentation with \eqn{\nu_i}, or identity). Default identity.}
+\item{B}{Integer. Number of Monte Carlo replicates. Default: \code{999}.}
 
-\item{B}{Number of reference datasets, i.e. number of refits. Default 199,
-so that \eqn{\alpha(B + 1)} is an integer at the 1\%, 5\% and 10\% levels.}
+\item{seed}{Optional integer random seed for reproducibility. Default: \code{NULL}.}
 
-\item{K}{Number of pseudo-samples per dataset over which the median
-discrepancy is taken, on both sides. Default 5. \code{K = 1} gives a single
-matched replicate.}
-
-\item{alpha}{Level at which \code{print()} reports a rejection. Default 0.05.}
-
-\item{standardize}{Logical. If \code{TRUE}, each feature column of a dataset is
-centred and scaled by that dataset's own mean and sd, and its
-pseudo-samples are scaled by the same constants. Default \code{TRUE}.}
-
-\item{cores}{Number of cores for the \code{B} refits (via
-\code{\link[parallel:mclapply]{parallel::mclapply()}}; not available on Windows). Results are identical
-for any value of \code{cores} given the same \code{seed}. Default 1.}
-
-\item{seed}{Optional integer seed for the test's own random numbers. The
-caller's random number stream is restored on exit, so code run after the
-call is unaffected. With \code{seed = NULL} the test draws from, and advances,
-the caller's stream. Default 1.}
-
-\item{verbose}{Logical; print progress. Default \code{TRUE}.}
+\item{verbose}{Logical. If \code{TRUE}, prints a progress bar. Default: \code{TRUE}.}
 }
 \value{
-An object of class \code{"eb_calibration"}: a list with
+A list of class \code{"eb_calibration"} containing:
 \describe{
-\item{p_value}{Monte Carlo p-value, counting every failed replicate as
-exceeding \eqn{T^{obs}}: \eqn{(1 + \#\{T^{ref}_b \ge T^{obs}\} +
-    \#\mathrm{failed}) / (B + 1)}. Conservative; equals the usual p-value
-when nothing fails.}
-\item{p_value_dropped}{The p-value computed on successful replicates
-only. Anti-conservative if refits fail more often on extreme datasets.}
-\item{T_obs}{Observed statistic (median of \code{T_obs_k}).}
-\item{T_obs_k}{The \code{K} observed-side discrepancies.}
-\item{T_ref}{Reference statistics from successful replicates.}
-\item{B, B_eff, K}{Requested and successful replicates, inner draws.}
-\item{n_failed}{Replicates in which the refit or simulation errored.}
-\item{alpha, n}{Reporting level and sample size.}
+\item{\code{p_value}}{Monte Carlo p-value. Small values indicate
+poor fit.}
+\item{\code{T_obs}}{Median observed discrepancy \eqn{\tilde{T}^{obs}}.}
+\item{\code{T_obs_all}}{Vector of length \code{B} of per-replicate
+observed discrepancies \eqn{T^{obs}_b}.}
+\item{\code{T_ref}}{Vector of length \code{B} of reference
+discrepancies \eqn{T^{ref}_b}.}
+\item{\code{B}}{Number of replicates used.}
 }
 }
 \description{
-Tests whether the observed data are a plausible realisation of the fitted
-empirical Bayes data generating process, \eqn{H_0: X_1, \dots, X_n \sim
-f_{\hat G}}, using the energy distance as the discrepancy and a refitted
-Monte Carlo reference distribution (proposal Section 4.2, Algorithm 1).
+Performs a simulation-based goodness-of-fit assessment for an empirical
+Bayes model using the multivariate energy distance as the discrepancy
+statistic. See: Efron (2010), "Large-Scale Inference", and the procedure
+described in the accompanying methodology document.
 }
 \details{
-One map is applied to every dataset \eqn{Y}: fit the prior to \eqn{Y} with
-\code{fit_prior}, draw \code{K} pseudo-samples of size \eqn{n} from that fit, and
-return the median of the \code{K} energy distances between \eqn{Y} and its
-pseudo-samples. \eqn{T^{obs}} is this map applied to \code{X_obs}; each
-\eqn{T^{ref}_b} is the same map applied to a synthetic dataset drawn from
-the fit to \code{X_obs}, which refits the prior. The test is asymptotically, not
-exactly, valid, because the reference datasets come from \eqn{f_{\hat G}}
-rather than the true law.
-}
-\section{Reading the result}{
+The procedure works as follows:
 
-A rejection says the fitted prior family does not reproduce the observed
-marginal. A flexible prior class absorbs many likelihood misspecifications
-(wrong noise scale, heavy-tailed errors), and dependence among units leaves
-the marginal unchanged, so a non-rejection certifies neither the likelihood
-nor independence (proposal Section 4.2.3).
+For each replicate \eqn{b = 1, \ldots, B}:
+\enumerate{
+\item Draw latent parameters \eqn{\theta_i^{(b)} \sim \hat{G}}, for
+\eqn{i = 1, \ldots, n}.
+\item Generate two independent synthetic datasets
+\eqn{X^{(b)}_{sim,1}} and \eqn{X^{(b)}_{sim,2}} from the fitted model.
+\item Compute \eqn{T^{ref}_b = d(X^{(b)}_{sim,1}, X^{(b)}_{sim,2})}.
+\item Compute \eqn{T^{obs}_b = d(X^{obs}, X^{(b)}_{sim,1})}.
 }
 
-\section{Unit-specific nuisance values}{
+The test statistic is \eqn{\tilde{T}^{obs} = \text{median}_b(T^{obs}_b)}
+and the Monte Carlo p-value is:
+\deqn{p = \frac{1 + \sum_{b=1}^{B} \mathbf{1}\{T^{ref}_b \geq \tilde{T}^{obs}\}}{B + 1}}
 
-Standard errors \eqn{s_i}, exposures, trial counts \eqn{N_i} and similar
-values \eqn{\nu_i} enter through closures. \code{fit_prior},
-\code{likelihood_sampler} and \code{feature_transform} should each capture the
-vector of \eqn{\nu_i} and use it by position: the \eqn{i}th unit of every
-dataset, observed or synthetic, has the \eqn{i}th \eqn{\nu_i}. In
-particular \code{fit_prior(x)} fits using \code{x} together with the captured
-\eqn{\nu_i} (e.g. \code{ebnm(x, s = s_obs)}). If the prior itself depends on
-\eqn{\nu_i}, the \eqn{i}th draw of the prior sampler must use the \eqn{i}th
-\eqn{\nu_i}. Every dataset has \code{n} units in the original order, so the
-pairing is preserved throughout.
+The energy distance between two samples is computed via
+\code{energy::eqdist.e()} from the \pkg{energy} package.
 }
-
 \examples{
-\dontrun{
-# Normal means with known unit-specific s_i, N(mu, tau^2) prior by moments.
-n <- 500
-s <- runif(n, 0.5, 2)
-x <- rnorm(n, rnorm(n), s)
-fit_prior <- function(x) {            # captures s, not x
-  mu  <- mean(x)
-  tau <- sqrt(max(var(x) - mean(s^2), 0))
-  function(n) rnorm(n, mu, tau)
-}
-lik <- function(theta) rnorm(length(theta), theta, s)   # i-th theta, i-th s
-eb_calibration_check(x, fit_prior, lik)
-}
+set.seed(42)
+n <- 200
+
+# Simulate observed data from a Normal-Normal model
+# True prior: theta_i ~ N(0, 1); likelihood: X_i | theta_i ~ N(theta_i, 1)
+thetas_true <- rnorm(n, mean = 0, sd = 1)
+X_obs       <- matrix(rnorm(n, mean = thetas_true, sd = 1), ncol = 1)
+
+# Suppose the empirical Bayes estimate of G is N(0, 1) (correctly specified)
+prior_sampler      <- function(n) rnorm(n, mean = 0, sd = 1)
+likelihood_sampler <- function(thetas) matrix(rnorm(length(thetas),
+                                                    mean = thetas, sd = 1),
+                                              ncol = 1)
+
+result <- eb_calibration_check(X_obs, prior_sampler, likelihood_sampler,
+                               B = 499, seed = 1)
+print(result)
+plot(result)
 }
